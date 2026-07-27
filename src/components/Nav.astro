@@ -10,21 +10,10 @@ const categories = (await getCollection('tags')).sort((a, b) => a.data.order - b
   <ul class="rubriken">
     {categories.map((category) => (
       <li class="rubrik">
-        <button class="rubrik-trigger" aria-describedby={`popover-${category.id}`}>
+        <a class="rubrik-link" href={`/tag/${category.id}`}>
           <Icon name={category.data.icon} />
           <span>{category.data.title}</span>
-        </button>
-        <div class="popover" id={`popover-${category.id}`} role="tooltip">
-          <p class="popover-description">{category.data.description}</p>
-          {category.data.subcategories.length > 0 && (
-            <ul class="popover-links">
-              {category.data.subcategories.map((sub) => (
-                <li><a href={`/tag/${category.id}#${sub.slug}`}>{sub.title}</a></li>
-              ))}
-            </ul>
-          )}
-          <a class="popover-all" href={`/tag/${category.id}`}>Alle Posts in {category.data.title} →</a>
-        </div>
+        </a>
       </li>
     ))}
   </ul>
@@ -57,122 +46,20 @@ const categories = (await getCollection('tags')).sort((a, b) => a.data.order - b
     flex-wrap: wrap;
   }
 
-  .rubrik {
-    position: relative;
-  }
-
-  .rubrik-trigger {
+  .rubrik-link {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    background: none;
-    border: none;
     color: var(--fg-muted);
-    font: inherit;
     font-size: 0.95rem;
     padding: 0.5rem 0.75rem;
     border-radius: 0.5rem;
-    cursor: pointer;
+    text-decoration: none;
   }
 
-  .rubrik-trigger:hover,
-  .rubrik-trigger:focus-visible {
+  .rubrik-link:hover,
+  .rubrik-link:focus-visible {
     color: var(--fg);
     background: var(--bg-subtle);
-  }
-
-  .popover {
-    position: absolute;
-    top: calc(100% + 0.4rem);
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 20;
-    width: max-content;
-    min-width: 14rem;
-    max-width: calc(100vw - 2rem);
-    background: var(--bg-elevated);
-    border: 1px solid var(--border);
-    border-radius: 0.75rem;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-    padding: 0.9rem 1rem;
-    opacity: 0;
-    visibility: hidden;
-  }
-
-  /* Invisible bridge covering the gap between the trigger and the
-     popover, so moving the mouse from one to the other never leaves
-     the hoverable area and closes the popover prematurely. */
-  .popover::before {
-    content: '';
-    position: absolute;
-    top: -0.6rem;
-    left: 0;
-    right: 0;
-    height: 0.6rem;
-  }
-
-  /* Keep edge items' popovers on-screen instead of centering them
-     off the trigger, which would push them past the viewport edge. */
-  .rubrik:first-child .popover {
-    left: 0;
-    transform: none;
-  }
-
-  .rubrik:last-child .popover {
-    left: auto;
-    right: 0;
-    transform: none;
-  }
-
-  .rubrik:hover .popover,
-  .rubrik:focus-within .popover {
-    opacity: 1;
-    visibility: visible;
-  }
-
-  /* When one item is hovered by the mouse, force-hide any other item's
-     popover that might still be open via lingering keyboard focus, so
-     popovers never overlap. */
-  .rubriken:has(.rubrik:hover) .rubrik:not(:hover) .popover {
-    opacity: 0;
-    visibility: hidden;
-  }
-
-  .popover-description {
-    margin: 0 0 0.6rem;
-    font-size: 0.9rem;
-    color: var(--fg-muted);
-  }
-
-  .popover-links {
-    list-style: none;
-    margin: 0 0 0.6rem;
-    padding: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.3rem;
-  }
-
-  .popover-links a {
-    font-size: 0.9rem;
-    color: var(--fg);
-    text-decoration: none;
-  }
-
-  .popover-links a:hover {
-    text-decoration: underline;
-  }
-
-  .popover-all {
-    display: inline-block;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--accent);
-    text-decoration: none;
-  }
-
-  .popover-all:hover {
-    text-decoration: underline;
   }
 </style>
