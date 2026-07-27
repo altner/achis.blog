@@ -9,6 +9,8 @@ export async function getStaticPaths() {
 
 const { id } = Astro.props;
 const category = await getEntry('tags', id);
+if (!category) throw new Error(`Tag not found: ${id}`);
+
 const posts = (await getCollection('posts'))
   .filter((post) => !post.data.draft && post.data.category === id)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
@@ -31,7 +33,7 @@ const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 
   <ul class="post-list">
     {posts.map((post) => (
       <li>
-        <a href={`/posts/${post.id}`}>{post.data.title}</a>
+        <a href={`/post/${post.id}`}>{post.data.title}</a>
         <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
       </li>
     ))}

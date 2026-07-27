@@ -9,10 +9,9 @@ const categories = (await getCollection('tags')).sort((a, b) => a.data.order - b
   <a class="brand" href="/">achis.blog</a>
   <ul class="rubriken">
     {categories.map((category) => (
-      <li class="rubrik">
-        <a class="rubrik-link" href={`/tag/${category.id}`}>
+      <li>
+        <a class="rubrik-link" href={`/tag/${category.id}`} title={category.data.title} aria-label={category.data.title}>
           <Icon name={category.data.icon} />
-          <span>{category.data.title}</span>
         </a>
       </li>
     ))}
@@ -24,7 +23,7 @@ const categories = (await getCollection('tags')).sort((a, b) => a.data.order - b
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.75rem;
+    gap: 1rem;
     padding: 1.5rem;
     border-bottom: 1px solid var(--border);
   }
@@ -40,7 +39,7 @@ const categories = (await getCollection('tags')).sort((a, b) => a.data.order - b
     display: flex;
     justify-content: center;
     list-style: none;
-    gap: 0;
+    gap: 0.75rem;
     margin: 0;
     padding: 0;
     flex-wrap: wrap;
@@ -49,17 +48,21 @@ const categories = (await getCollection('tags')).sort((a, b) => a.data.order - b
   .rubrik-link {
     display: flex;
     align-items: center;
-    gap: 0.4rem;
-    color: var(--fg-muted);
-    font-size: 0.95rem;
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.5rem;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 999px;
+    background: var(--bg-elevated);
+    border: 1px solid var(--border);
+    color: var(--fg);
     text-decoration: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
   }
 
   .rubrik-link:hover,
   .rubrik-link:focus-visible {
-    color: var(--fg);
-    background: var(--bg-subtle);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   }
 </style>

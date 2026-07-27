@@ -1,5 +1,7 @@
 ## Development
 
+Before starting a dev server, check `astro dev status` — the user often already has one running locally. Don't start a duplicate if one is already up.
+
 When starting the dev server, use background mode:
 
 ```

@@ -9,7 +9,9 @@ export async function getStaticPaths() {
 
 const { id } = Astro.props;
 const post = await getEntry('posts', id);
-const category = post ? await getEntry('tags', post.data.category) : undefined;
+if (!post) throw new Error(`Post not found: ${id}`);
+
+const category = await getEntry('tags', post.data.category);
 const { Content } = await render(post);
 
 const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });

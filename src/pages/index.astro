@@ -14,13 +14,13 @@ const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 
 ---
 
 <BaseLayout title="achis.blog" description="Notizen zu Code, Projekten und dem Leben dazwischen.">
-  <h1>Posts</h1>
+  <h1 class="sr-only">Posts</h1>
   <ul class="post-list">
     {publishedPosts.map((post) => {
       const category = categoryById.get(post.data.category);
       return (
         <li class="post-item">
-          <a class="post-link" href={`/posts/${post.id}`}>
+          <a class="post-link" href={`/post/${post.id}`}>
             <span class="post-title">{post.data.title}</span>
             <span class="post-meta">
               {category && <span class="post-category">{category.title}</span>}
