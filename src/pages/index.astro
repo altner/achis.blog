@@ -1,6 +1,7 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import Icon from '../components/Icon.astro';
 
 const [posts, categories] = await Promise.all([getCollection('posts'), getCollection('categories')]);
 
@@ -21,9 +22,11 @@ const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 
       return (
         <li class="post-item">
           <a class="post-link" href={`/${post.data.category?.id ?? 'misc'}/${post.id}`}>
-            <span class="post-title">{post.data.title}</span>
+            <span class="post-title">
+              {category && <Icon name={category.icon} class="post-category-icon" />}
+              {post.data.title}
+            </span>
             <span class="post-meta">
-              {category && <span class="post-category">{category.title}</span>}
               <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
             </span>
             <p class="post-description">{post.data.description}</p>
@@ -64,9 +67,16 @@ const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 
   }
 
   .post-title {
-    display: block;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
     font-size: 1.25rem;
     font-weight: 700;
+  }
+
+  .post-title :global(.post-category-icon) {
+    flex-shrink: 0;
+    color: var(--fg-muted);
   }
 
   .post-link:hover .post-title {
@@ -80,13 +90,6 @@ const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 
     margin-top: 0.3rem;
     font-size: 0.85rem;
     color: var(--fg-muted);
-  }
-
-  .post-category {
-    background: var(--bg-subtle);
-    padding: 0.15rem 0.55rem;
-    border-radius: 999px;
-    font-weight: 600;
   }
 
   .post-description {

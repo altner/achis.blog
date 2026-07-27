@@ -1,6 +1,6 @@
 ---
 title: Unterwegs
 description: Reisen
-icon: footprints
+icon: compas
 order: 2
 ---

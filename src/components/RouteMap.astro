@@ -1,0 +1,196 @@
+---
+import 'leaflet/dist/leaflet.css';
+
+interface Point {
+  lat: number;
+  lon: number;
+  ele?: number;
+  distKm: number;
+}
+
+interface Props {
+  points: Point[];
+  distanceKm?: number;
+  elevationGainM?: number;
+}
+
+const { points, distanceKm, elevationGainM } = Astro.props;
+const mapId = `route-map-${crypto.randomUUID()}`;
+const dataId = `${mapId}-data`;
+
+// Elevation profile — rendered as static SVG at build time (no client JS
+// needed for this part, unlike the interactive Leaflet map below).
+const PROFILE_WIDTH = 600;
+const PROFILE_HEIGHT = 140;
+const LEFT_MARGIN = 34; // room for elevation (m) axis labels
+const BOTTOM_MARGIN = 18; // room for distance (km) axis labels
+const PADDING_Y = 8;
+
+const plotLeft = LEFT_MARGIN;
+const plotRight = PROFILE_WIDTH;
+const plotBottom = PROFILE_HEIGHT - BOTTOM_MARGIN;
+const plotTop = 0;
+
+const elePoints = points.filter((p): p is Point & { ele: number } => p.ele !== undefined);
+const totalDistKm = points[points.length - 1]?.distKm ?? 0;
+
+let profilePolylinePoints = '';
+let profileAreaPath = '';
+let minEle = 0;
+let maxEle = 0;
+
+if (elePoints.length >= 2 && totalDistKm > 0) {
+  const eles = elePoints.map((p) => p.ele);
+  minEle = Math.min(...eles);
+  maxEle = Math.max(...eles);
+  const range = maxEle - minEle || 1;
+
+  const coords = elePoints.map((p) => {
+    const x = plotLeft + (p.distKm / totalDistKm) * (plotRight - plotLeft);
+    const y = plotBottom - PADDING_Y - ((p.ele - minEle) / range) * (plotBottom - plotTop - 2 * PADDING_Y);
+    return [x, y] as const;
+  });
+
+  profilePolylinePoints = coords.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
+
+  const first = coords[0];
+  const last = coords[coords.length - 1];
+  profileAreaPath = `M ${first[0].toFixed(1)},${plotBottom} L ${profilePolylinePoints} L ${last[0].toFixed(1)},${plotBottom} Z`;
+}
+---
+
+<div class="route-map-wrap">
+  {(distanceKm !== undefined || elevationGainM !== undefined) && (
+    <p class="route-stats">
+      {distanceKm !== undefined && <span>{distanceKm.toFixed(1)} km</span>}
+      {elevationGainM !== undefined && <span>↑ {Math.round(elevationGainM)} m</span>}
+    </p>
+  )}
+  <div id={mapId} class="route-map" data-points-id={dataId}></div>
+  {profilePolylinePoints && (
+    <svg
+      class="elevation-profile"
+      viewBox={`0 0 ${PROFILE_WIDTH} ${PROFILE_HEIGHT}`}
+      role="img"
+      aria-label={`Höhenprofil, ${Math.round(minEle)} bis ${Math.round(maxEle)} Meter über ${totalDistKm.toFixed(1)} Kilometer`}
+    >
+      <line x1={plotLeft} y1={plotTop} x2={plotLeft} y2={plotBottom} class="axis-line" />
+      <line x1={plotLeft} y1={plotBottom} x2={plotRight} y2={plotBottom} class="axis-line" />
+
+      <text x={plotLeft - 4} y={plotTop + PADDING_Y} class="axis-label ele-label">{Math.round(maxEle)} m</text>
+      <text x={plotLeft - 4} y={plotBottom - 2} class="axis-label ele-label">{Math.round(minEle)} m</text>
+
+      <text x={plotLeft} y={PROFILE_HEIGHT - 4} class="axis-label dist-label">0 km</text>
+      <text x={plotRight} y={PROFILE_HEIGHT - 4} class="axis-label dist-label dist-label-end">
+        {totalDistKm.toFixed(1)} km
+      </text>
+
+      <path d={profileAreaPath} class="elevation-area" />
+      <polyline points={profilePolylinePoints} class="elevation-line" />
+    </svg>
+  )}
+</div>
+
+<script type="application/json" id={dataId} set:html={JSON.stringify(points)} is:inline />
+
+<script>
+  async function initRouteMaps() {
+    const maps = document.querySelectorAll<HTMLElement>('.route-map');
+    if (maps.length === 0) return;
+
+    const L = (await import('leaflet')).default;
+
+    maps.forEach((el) => {
+      const dataEl = document.getElementById(el.dataset.pointsId!);
+      if (!dataEl?.textContent) return;
+
+      const points: { lat: number; lon: number }[] = JSON.parse(dataEl.textContent);
+      if (points.length === 0) return;
+
+      const map = L.map(el).setView([points[0].lat, points[0].lon], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+        maxZoom: 19,
+      }).addTo(map);
+
+      const latlngs = points.map((p): [number, number] => [p.lat, p.lon]);
+      const line = L.polyline(latlngs, { color: 'var(--accent)', weight: 4 }).addTo(map);
+      map.fitBounds(line.getBounds(), { padding: [16, 16] });
+
+      L.circleMarker(latlngs[0], { radius: 7, color: '#2e7d32', fillColor: '#2e7d32', fillOpacity: 1 }).addTo(map);
+      L.circleMarker(latlngs[latlngs.length - 1], {
+        radius: 7,
+        color: '#c62828',
+        fillColor: '#c62828',
+        fillOpacity: 1,
+      }).addTo(map);
+    });
+  }
+
+  initRouteMaps();
+</script>
+
+<style>
+  .route-map-wrap {
+    margin: 1.5rem 0;
+  }
+
+  .route-map {
+    width: 100%;
+    height: 400px;
+    border-radius: 0.75rem;
+  }
+
+  .route-stats {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.9rem;
+    color: var(--fg-muted);
+    margin: 0 0 0.5rem;
+  }
+
+  .elevation-profile {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-top: 0.75rem;
+  }
+
+  .elevation-area {
+    fill: var(--accent);
+    opacity: 0.15;
+    stroke: none;
+  }
+
+  .elevation-line {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  .axis-line {
+    stroke: var(--border);
+    stroke-width: 1;
+  }
+
+  .axis-label {
+    fill: var(--fg-muted);
+    font-size: 9px;
+  }
+
+  .ele-label {
+    text-anchor: end;
+    dominant-baseline: middle;
+  }
+
+  .dist-label {
+    text-anchor: start;
+  }
+
+  .dist-label-end {
+    text-anchor: end;
+  }
+</style>

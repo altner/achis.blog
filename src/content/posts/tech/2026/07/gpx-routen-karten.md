@@ -1,0 +1,37 @@
+---
+title: GPX-Tracks als Karte im Blog
+description: Wie Fahrrad-Touren aus GPX-Dateien als interaktive Karte mit Höhenprofil im Blog landen.
+date: 2026-07-27
+category: tech
+tags: [astro, gpx, leaflet, map]
+---
+
+Für die Touren unter "Unterwegs" wollte ich nicht nur einen Text schreiben, sondern die aufgezeichnete Strecke direkt als Karte zeigen — inklusive Höhenprofil. Hier kurz, wie das technisch funktioniert.
+
+## Eigene Content Collection statt Datei-Handling im Post
+
+Statt die GPX-Datei einfach irgendwo im Code einzulesen, gibt es dafür eine eigene Astro Content Collection namens `activities`, gefüttert über einen eigenen Loader (`src/loaders/gpx.ts`). Der Loader läuft unabhängig von einzelnen Posts: er durchsucht beim Build einmal `src/content/posts` nach **allen** `.gpx`-Dateien, parst jede davon und berechnet daraus:
+
+- die Liste der Track-Punkte (Lat/Lon/Höhe)
+- die Gesamtstrecke (Haversine-Formel zwischen den Punkten)
+- die Höhenmeter
+
+Welche GPX-Datei zu welchem Post gehört, steht dagegen im Frontmatter des Posts — einfach der Dateiname:
+
+```yaml
+gpx: 2026-07-13_3130383832_Ride.gpx
+```
+
+Da die GPX-Datei immer im selben Ordner wie der Post liegt, reicht der Dateiname. Beim Rendern der Post-Seite wird er mit dem Ordner des Posts kombiniert, um den passenden Eintrag aus der `activities`-Collection zu finden.
+
+## Höhenmeter aus GPS-Daten sind trickreich
+
+Rohe GPS-Höhenwerte rauschen stark. Naiv alle positiven Höhenänderungen zwischen aufeinanderfolgenden Punkten aufzusummieren, überschätzt die Höhenmeter massiv, weil sich die Werte auch im Flachen ständig um ein paar Zentimeter bis Meter nach oben und unten bewegen.
+
+Die Lösung ist Hysterese: es wird eine Referenzhöhe ("Baseline") gehalten und erst verschoben, wenn die *kumulierte* Abweichung einen Schwellenwert überschreitet. Erst dann zählt die Differenz als echter Anstieg. Das liefert deutlich realistischere Werte.
+
+## Karte ohne schwere Abhängigkeiten
+
+Fürs Rendern kommt **Leaflet** zum Einsatz — mit OpenStreetMap-Kacheln, ganz ohne API-Key. Da tausende Track-Punkte pro Aufzeichnung zusammenkommen können, werden die Punkte vor dem Ausliefern auf rund 300 reduziert, damit die Seite schlank bleibt. Das komplette GPX-Parsing passiert beim Build — im Browser landet nur noch die fertige, kleine Punkteliste, nie die rohe GPX-Datei.
+
+Das Höhenprofil unter der Karte ist sogar komplett statisches SVG, serverseitig beim Build erzeugt — dafür ist gar kein JavaScript nötig, nur die interaktive Karte selbst lädt Leaflet nach.

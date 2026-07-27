@@ -1,0 +1,13 @@
+---
+title: Mein Deploy-Setup für diesen Blog
+description: Wie achis.blog gebaut und auf GitHub Pages ausgeliefert wird.
+date: 2026-06-25
+category: tech
+tags: [astro, github-pages, deploy]
+---
+
+Dieser Blog ist mit **Astro** gebaut und wird als statischer Build über **GitHub Pages** ausgeliefert.
+
+Der Quellcode liegt auf GitHub (`main`-Branch), aber gebaut wird bewusst **lokal**, nicht über GitHub Actions.
+
+Ein kleines Deploy-Skript (`npm run deploy`) baut die Seite lokal und pusht ausschließlich das fertige Ergebnis in den `gh-pages`-Branch. GitHub Pages liefert von dort direkt statisch aus.

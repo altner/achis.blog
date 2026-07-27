@@ -1,6 +1,10 @@
 ---
 import { getCollection, getEntry, render } from 'astro:content';
+import { posix } from 'node:path';
 import BaseLayout from '../../layouts/BaseLayout.astro';
+import RouteMap from '../../components/RouteMap.astro';
+
+const POSTS_BASE = 'src/content/posts';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
@@ -15,6 +19,13 @@ const post = await getEntry('posts', id);
 if (!post) throw new Error(`Post not found: ${id}`);
 
 const category = post.data.category ? await getEntry(post.data.category) : undefined;
+
+// The .gpx file always lives next to its post — combine the post's own
+// directory with the filename from frontmatter to get the activities id.
+const activity =
+  post.data.gpx && post.filePath
+    ? await getEntry('activities', posix.join(posix.relative(POSTS_BASE, posix.dirname(post.filePath)), post.data.gpx))
+    : undefined;
 const { Content } = await render(post);
 
 const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -27,6 +38,13 @@ const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 
       <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
     </p>
     <h1>{post.data.title}</h1>
+    {activity && (
+      <RouteMap
+        points={activity.data.points}
+        distanceKm={activity.data.distanceKm}
+        elevationGainM={activity.data.elevationGainM}
+      />
+    )}
     <div class="content">
       <Content />
     </div>
