@@ -6,6 +6,7 @@
   --fg-muted: #5b6270;
   --border: #e5e7eb;
   --accent: #3457d5;
+  --marker: #ffe066;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -17,6 +18,7 @@
     --fg-muted: #9aa1ac;
     --border: #2b2f36;
     --accent: #7c9bff;
+    --marker: #a68a2a;
   }
 }
 

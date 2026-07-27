@@ -20,6 +20,10 @@ const posts = defineCollection({
     // folder as the post itself. Resolved to an `activities` entry at
     // render time by combining this with the post's own directory.
     gpx: z.string().optional(),
+    // Small icon badges shown next to the post meta, e.g. for "unterwegs"
+    // posts: bike for rides, footprints for walks, camera when there are
+    // photos, backpack for longer trips. Any combination is allowed.
+    badges: z.array(z.enum(['bike', 'footprints', 'camera', 'backpack'])).default([]),
     tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),

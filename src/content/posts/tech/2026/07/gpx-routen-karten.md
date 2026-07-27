@@ -1,12 +1,12 @@
 ---
 title: GPX-Tracks als Karte im Blog
 description: Wie Fahrrad-Touren aus GPX-Dateien als interaktive Karte mit Höhenprofil im Blog landen.
-date: 2026-07-27
+date: 2026-07-26
 category: tech
 tags: [astro, gpx, leaflet, map]
 ---
 
-Für die Touren unter "Unterwegs" wollte ich nicht nur einen Text schreiben, sondern die aufgezeichnete Strecke direkt als Karte zeigen — inklusive Höhenprofil. Hier kurz, wie das technisch funktioniert.
+Für die Touren unter "Unterwegs" wollte ich nicht nur einen Text schreiben, sondern die aufgezeichnete Strecke direkt als Karte zeigen — inklusive Höhenprofil. Ein Beispiel dafür ist die [Dresden-Moritzburg Runde](/unterwegs/dresden-moritzburg-runde). Hier kurz, wie das technisch funktioniert.
 
 ## Eigene Content Collection statt Datei-Handling im Post
 

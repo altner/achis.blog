@@ -19,8 +19,10 @@ const tags = [...tagCounts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   <ul class="tag-list">
     {tags.map(([tag, count]) => (
       <li>
-        <a href={`/tags/${tag}`}>{tag}</a>
-        <span class="count">{count}</span>
+        <a href={`/tags/${tag}`}>
+          {tag}
+          <span class="count">{count}</span>
+        </a>
       </li>
     ))}
     {tags.length === 0 && <li class="empty">Noch keine Tags vorhanden.</li>}
@@ -37,16 +39,13 @@ const tags = [...tagCounts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
     gap: 0.6rem;
   }
 
-  .tag-list li {
+  .tag-list a {
     display: flex;
     align-items: center;
     gap: 0.35rem;
     background: var(--bg-subtle);
     border-radius: 999px;
     padding: 0.3rem 0.4rem 0.3rem 0.8rem;
-  }
-
-  .tag-list a {
     text-decoration: none;
     font-weight: 600;
     color: var(--fg);
