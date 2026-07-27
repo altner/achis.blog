@@ -1,5 +1,6 @@
-import { defineCollection, z } from 'astro:content';
+import { defineCollection, reference } from 'astro:content';
 import { glob } from 'astro/loaders';
+import { z } from 'astro/zod';
 
 const posts = defineCollection({
   loader: glob({ pattern: '**/*.{md,mdx}', base: './src/content/posts' }),
@@ -7,20 +8,20 @@ const posts = defineCollection({
     title: z.string(),
     description: z.string(),
     date: z.coerce.date(),
-    category: z.string(),
+    category: reference('categories').optional(),
+    tags: z.array(z.string()).default([]),
     draft: z.boolean().default(false),
   }),
 });
 
-const tags = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/tags' }),
+const categories = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/categories' }),
   schema: z.object({
     title: z.string(),
     description: z.string(),
     icon: z.string(),
     order: z.number().default(0),
-    subcategories: z.array(z.object({ title: z.string(), slug: z.string() })).default([]),
   }),
 });
 
-export const collections = { posts, tags };
+export const collections = { posts, categories };

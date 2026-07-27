@@ -2,7 +2,7 @@
 import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 
-const [posts, categories] = await Promise.all([getCollection('posts'), getCollection('tags')]);
+const [posts, categories] = await Promise.all([getCollection('posts'), getCollection('categories')]);
 
 const categoryById = new Map(categories.map((c) => [c.id, c.data]));
 
@@ -17,10 +17,10 @@ const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 
   <h1 class="sr-only">Posts</h1>
   <ul class="post-list">
     {publishedPosts.map((post) => {
-      const category = categoryById.get(post.data.category);
+      const category = post.data.category ? categoryById.get(post.data.category.id) : undefined;
       return (
         <li class="post-item">
-          <a class="post-link" href={`/post/${post.id}`}>
+          <a class="post-link" href={`/${post.data.category?.id ?? 'misc'}/${post.id}`}>
             <span class="post-title">{post.data.title}</span>
             <span class="post-meta">
               {category && <span class="post-category">{category.title}</span>}

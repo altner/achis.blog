@@ -1,18 +1,18 @@
 ---
 import { getCollection, getEntry } from 'astro:content';
-import BaseLayout from '../../layouts/BaseLayout.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
-  const categories = await getCollection('tags');
-  return categories.map((category) => ({ params: { id: category.id }, props: { id: category.id } }));
+  const categories = await getCollection('categories');
+  return categories.map((category) => ({ params: { categorie: category.id }, props: { id: category.id } }));
 }
 
 const { id } = Astro.props;
-const category = await getEntry('tags', id);
-if (!category) throw new Error(`Tag not found: ${id}`);
+const category = await getEntry('categories', id);
+if (!category) throw new Error(`Category not found: ${id}`);
 
 const posts = (await getCollection('posts'))
-  .filter((post) => !post.data.draft && post.data.category === id)
+  .filter((post) => !post.data.draft && post.data.category?.id === id)
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
 const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -22,18 +22,10 @@ const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 
   <h1>{category.data.title}</h1>
   <p class="description">{category.data.description}</p>
 
-  {category.data.subcategories.length > 0 && (
-    <ul class="subcategories">
-      {category.data.subcategories.map((sub) => (
-        <li id={sub.slug}>{sub.title}</li>
-      ))}
-    </ul>
-  )}
-
   <ul class="post-list">
     {posts.map((post) => (
       <li>
-        <a href={`/post/${post.id}`}>{post.data.title}</a>
+        <a href={`/${id}/${post.id}`}>{post.data.title}</a>
         <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
       </li>
     ))}
@@ -44,22 +36,6 @@ const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 
 <style>
   .description {
     color: var(--fg-muted);
-  }
-
-  .subcategories {
-    display: flex;
-    gap: 0.5rem;
-    list-style: none;
-    padding: 0;
-    margin: 1rem 0;
-    flex-wrap: wrap;
-  }
-
-  .subcategories li {
-    background: var(--bg-subtle);
-    padding: 0.25rem 0.7rem;
-    border-radius: 999px;
-    font-size: 0.85rem;
   }
 
   .post-list {

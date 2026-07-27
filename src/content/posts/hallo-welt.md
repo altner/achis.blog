@@ -2,7 +2,7 @@
 title: Hallo Welt
 description: Der erste Post auf achis.blog — willkommen.
 date: 2026-07-20
-category: tech
+tags: [intro]
 ---
 
 Willkommen auf **achis.blog**. Hier schreibe ich über Code, Projekte und alles dazwischen.

@@ -1,0 +1,70 @@
+---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+const posts = (await getCollection('posts')).filter((post) => !post.data.draft);
+
+const tagCounts = new Map<string, number>();
+for (const post of posts) {
+  for (const tag of post.data.tags) {
+    tagCounts.set(tag, (tagCounts.get(tag) ?? 0) + 1);
+  }
+}
+
+const tags = [...tagCounts.entries()].sort((a, b) => a[0].localeCompare(b[0]));
+---
+
+<BaseLayout title="Tags — achis.blog" description="Alle Tags auf achis.blog.">
+  <h1>Tags</h1>
+  <ul class="tag-list">
+    {tags.map(([tag, count]) => (
+      <li>
+        <a href={`/tags/${tag}`}>{tag}</a>
+        <span class="count">{count}</span>
+      </li>
+    ))}
+    {tags.length === 0 && <li class="empty">Noch keine Tags vorhanden.</li>}
+  </ul>
+</BaseLayout>
+
+<style>
+  .tag-list {
+    list-style: none;
+    padding: 0;
+    margin: 1.5rem 0 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+
+  .tag-list li {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    background: var(--bg-subtle);
+    border-radius: 999px;
+    padding: 0.3rem 0.4rem 0.3rem 0.8rem;
+  }
+
+  .tag-list a {
+    text-decoration: none;
+    font-weight: 600;
+    color: var(--fg);
+  }
+
+  .tag-list a:hover {
+    color: var(--accent);
+  }
+
+  .count {
+    font-size: 0.75rem;
+    color: var(--fg-muted);
+    background: var(--bg-elevated);
+    border-radius: 999px;
+    padding: 0.1rem 0.45rem;
+  }
+
+  .empty {
+    color: var(--fg-muted);
+  }
+</style>

@@ -2,5 +2,5 @@
 title: Fotografie
 description: Bilder und Perspektiven.
 icon: camera
-order: 5
+order: 3
 ---

@@ -4,14 +4,17 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 
 export async function getStaticPaths() {
   const posts = await getCollection('posts');
-  return posts.map((post) => ({ params: { id: post.id }, props: { id: post.id } }));
+  return posts.map((post) => ({
+    params: { categorie: post.data.category?.id ?? 'misc', id: post.id },
+    props: { id: post.id },
+  }));
 }
 
 const { id } = Astro.props;
 const post = await getEntry('posts', id);
 if (!post) throw new Error(`Post not found: ${id}`);
 
-const category = await getEntry('tags', post.data.category);
+const category = post.data.category ? await getEntry(post.data.category) : undefined;
 const { Content } = await render(post);
 
 const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
@@ -20,13 +23,20 @@ const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 
 <BaseLayout title={`${post.data.title} — achis.blog`} description={post.data.description}>
   <article>
     <p class="meta">
-      {category && <a class="category-link" href={`/tag/${category.id}`}>{category.data.title}</a>}
+      {category && <a class="category-link" href={`/${category.id}`}>{category.data.title}</a>}
       <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
     </p>
     <h1>{post.data.title}</h1>
     <div class="content">
       <Content />
     </div>
+    {post.data.tags.length > 0 && (
+      <ul class="tags">
+        {post.data.tags.map((tag) => (
+          <li><a href={`/tags/${tag}`}>#{tag}</a></li>
+        ))}
+      </ul>
+    )}
   </article>
 </BaseLayout>
 
@@ -55,5 +65,24 @@ const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 
 
   .content :global(p) {
     margin: 1rem 0;
+  }
+
+  .tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0;
+    margin: 2rem 0 0;
+  }
+
+  .tags a {
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    text-decoration: none;
+  }
+
+  .tags a:hover {
+    color: var(--accent);
   }
 </style>

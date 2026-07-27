@@ -11,6 +11,10 @@ import {
   Music,
   Bike,
   NotebookPen,
+  Backpack,
+  Compass,
+  Footprints,
+  Tags,
 } from '@lucide/astro';
 
 interface Props {
@@ -32,6 +36,10 @@ const icons = {
   music: Music,
   bike: Bike,
   notebook: NotebookPen,
+  backpack: Backpack,
+  compas: Compass,
+  footprints: Footprints,
+  tags: Tags,
 } as const;
 
 const IconComponent = icons[name as keyof typeof icons];
