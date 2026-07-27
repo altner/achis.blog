@@ -1,0 +1,98 @@
+---
+import { getCollection, getEntry } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const categories = await getCollection('tags');
+  return categories.map((category) => ({ params: { id: category.id }, props: { id: category.id } }));
+}
+
+const { id } = Astro.props;
+const category = await getEntry('tags', id);
+const posts = (await getCollection('posts'))
+  .filter((post) => !post.data.draft && post.data.category === id)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+---
+
+<BaseLayout title={`${category.data.title} — achis.blog`} description={category.data.description}>
+  <h1>{category.data.title}</h1>
+  <p class="description">{category.data.description}</p>
+
+  {category.data.subcategories.length > 0 && (
+    <ul class="subcategories">
+      {category.data.subcategories.map((sub) => (
+        <li id={sub.slug}>{sub.title}</li>
+      ))}
+    </ul>
+  )}
+
+  <ul class="post-list">
+    {posts.map((post) => (
+      <li>
+        <a href={`/posts/${post.id}`}>{post.data.title}</a>
+        <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+      </li>
+    ))}
+    {posts.length === 0 && <li class="empty">Noch keine Posts in dieser Rubrik.</li>}
+  </ul>
+</BaseLayout>
+
+<style>
+  .description {
+    color: var(--fg-muted);
+  }
+
+  .subcategories {
+    display: flex;
+    gap: 0.5rem;
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0;
+    flex-wrap: wrap;
+  }
+
+  .subcategories li {
+    background: var(--bg-subtle);
+    padding: 0.25rem 0.7rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+  }
+
+  .post-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .post-list li {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.75rem;
+  }
+
+  .post-list a {
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .post-list a:hover {
+    color: var(--accent);
+  }
+
+  .post-list time {
+    color: var(--fg-muted);
+    font-size: 0.85rem;
+    white-space: nowrap;
+  }
+
+  .empty {
+    color: var(--fg-muted);
+  }
+</style>

@@ -22,3 +22,6 @@ pnpm-debug.log*
 
 # jetbrains setting folder
 .idea/
+
+# local worktree used by scripts/deploy.sh
+.pages-worktree/

@@ -1,0 +1,57 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import BaseLayout from '../../layouts/BaseLayout.astro';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('posts');
+  return posts.map((post) => ({ params: { id: post.id }, props: { id: post.id } }));
+}
+
+const { id } = Astro.props;
+const post = await getEntry('posts', id);
+const category = post ? await getEntry('tags', post.data.category) : undefined;
+const { Content } = await render(post);
+
+const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+---
+
+<BaseLayout title={`${post.data.title} — achis.blog`} description={post.data.description}>
+  <article>
+    <p class="meta">
+      {category && <a class="category-link" href={`/tag/${category.id}`}>{category.data.title}</a>}
+      <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+    </p>
+    <h1>{post.data.title}</h1>
+    <div class="content">
+      <Content />
+    </div>
+  </article>
+</BaseLayout>
+
+<style>
+  .meta {
+    display: flex;
+    gap: 0.6rem;
+    align-items: center;
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    margin-bottom: 0.5rem;
+  }
+
+  .category-link {
+    background: var(--bg-subtle);
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-weight: 600;
+    text-decoration: none;
+    color: var(--fg);
+  }
+
+  h1 {
+    margin-top: 0;
+  }
+
+  .content :global(p) {
+    margin: 1rem 0;
+  }
+</style>

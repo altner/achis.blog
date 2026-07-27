@@ -1,17 +1,96 @@
 ---
+import { getCollection } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
 
+const [posts, categories] = await Promise.all([getCollection('posts'), getCollection('tags')]);
+
+const categoryById = new Map(categories.map((c) => [c.id, c.data]));
+
+const publishedPosts = posts
+  .filter((post) => !post.data.draft)
+  .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>achis.blog</title>
-	</head>
-	<body>
-		
-	</body>
-</html>
+<BaseLayout title="achis.blog" description="Notizen zu Code, Projekten und dem Leben dazwischen.">
+  <h1>Posts</h1>
+  <ul class="post-list">
+    {publishedPosts.map((post) => {
+      const category = categoryById.get(post.data.category);
+      return (
+        <li class="post-item">
+          <a class="post-link" href={`/posts/${post.id}`}>
+            <span class="post-title">{post.data.title}</span>
+            <span class="post-meta">
+              {category && <span class="post-category">{category.title}</span>}
+              <time datetime={post.data.date.toISOString()}>{dateFormatter.format(post.data.date)}</time>
+            </span>
+            <p class="post-description">{post.data.description}</p>
+          </a>
+        </li>
+      );
+    })}
+  </ul>
+</BaseLayout>
+
+<style>
+  h1 {
+    margin-bottom: 1.5rem;
+  }
+
+  .post-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .post-item {
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 1.5rem;
+  }
+
+  .post-item:last-child {
+    border-bottom: none;
+  }
+
+  .post-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .post-title {
+    display: block;
+    font-size: 1.25rem;
+    font-weight: 700;
+  }
+
+  .post-link:hover .post-title {
+    color: var(--accent);
+  }
+
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+  }
+
+  .post-category {
+    background: var(--bg-subtle);
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+
+  .post-description {
+    margin: 0.5rem 0 0;
+    color: var(--fg-muted);
+  }
+</style>
