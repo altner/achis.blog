@@ -17,7 +17,12 @@ const posts = (await getCollection('posts'))
   .filter((post) => !post.data.draft && post.data.tags.includes(tag))
   .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
 
-const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+const dateFormatter = new Intl.DateTimeFormat('de-DE', {
+  day: '2-digit',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'Europe/Berlin',
+});
 ---
 
 <BaseLayout title={`#${tag} — achis.blog`} description={`Posts mit dem Tag ${tag}.`}>

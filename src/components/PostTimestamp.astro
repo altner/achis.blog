@@ -8,7 +8,15 @@ interface Props {
 
 const { date, badges = [] } = Astro.props;
 
-const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+// Explicit timeZone — without it, Intl uses the server's system timezone,
+// which is Europe/Berlin locally but UTC on Vercel's build servers, giving
+// different (wrong) dates depending on where the build runs.
+const dateFormatter = new Intl.DateTimeFormat('de-DE', {
+  day: '2-digit',
+  month: 'long',
+  year: 'numeric',
+  timeZone: 'Europe/Berlin',
+});
 const absolute = dateFormatter.format(date);
 ---
 
