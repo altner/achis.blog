@@ -1,0 +1,102 @@
+---
+import Icon from './Icon.astro';
+
+interface Props {
+  date: Date;
+  badges?: string[];
+}
+
+const { date, badges = [] } = Astro.props;
+
+const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+const absolute = dateFormatter.format(date);
+---
+
+<p class="post-timestamp">
+  {badges.length > 0 && (
+    <span class="badges">
+      {badges.map((badge) => (
+        <Icon name={badge} class="badge-icon" />
+      ))}
+    </span>
+  )}
+  <time datetime={date.toISOString()} title={absolute} data-relative>{absolute}</time>
+</p>
+
+<script>
+  // Progressive enhancement — the server renders an absolute date so the
+  // page works without JS; this upgrades it to a relative "vor 3 Stunden"
+  // label client-side, no SSR/rebuild needed since it's just today's date
+  // compared against the static <time datetime> already in the HTML.
+  //
+  // Intl.RelativeTimeFormat doesn't give us the exact German phrasing we
+  // want here (declined "einem"/"einer" for singular units, plus an early
+  // month→year rounding like moment.js's classic humanize thresholds), so
+  // this is hand-rolled instead.
+  const MINUTE = 60;
+  const HOUR = MINUTE * 60;
+  const DAY = HOUR * 24;
+  const WEEK = DAY * 7;
+  const MONTH = DAY * 30.44;
+  const YEAR = DAY * 365.25;
+
+  // German style: spell out single-digit counts (zwei, drei, ...), switch
+  // to digits from 10 on.
+  const NUMBER_WORDS = ['null', 'eins', 'zwei', 'drei', 'vier', 'fünf', 'sechs', 'sieben', 'acht', 'neun'];
+
+  function unit(count: number, singular: string, singularArticle: string, plural: string): string {
+    const n = Math.max(1, Math.round(count));
+    if (n === 1) return `${singularArticle} ${singular}`;
+    const label = n < 10 ? NUMBER_WORDS[n] : String(n);
+    return `${label} ${plural}`;
+  }
+
+  function formatRelative(date: Date): string {
+    const diffSec = (Date.now() - date.getTime()) / 1000;
+    const abs = Math.abs(diffSec);
+    const prefix = diffSec < 0 ? 'in' : 'vor';
+
+    if (abs < 45) return diffSec < 0 ? 'gleich' : 'gerade eben';
+    if (abs < MINUTE * 45) return `${prefix} ${unit(abs / MINUTE, 'Minute', 'einer', 'Minuten')}`;
+    if (abs < HOUR * 22) return `${prefix} ${unit(abs / HOUR, 'Stunde', 'einer', 'Stunden')}`;
+    if (abs < DAY * 6.5) return `${prefix} ${unit(abs / DAY, 'Tag', 'einem', 'Tagen')}`;
+    if (abs < DAY * 28) return `${prefix} ${unit(abs / WEEK, 'Woche', 'einer', 'Wochen')}`;
+
+    const months = abs / MONTH;
+    if (months < 10) return `${prefix} ${unit(months, 'Monat', 'einem', 'Monaten')}`;
+
+    return `${prefix} ${unit(abs / YEAR, 'Jahr', 'einem', 'Jahren')}`;
+  }
+
+  function updateRelativeTimes() {
+    document.querySelectorAll<HTMLTimeElement>('time[data-relative]').forEach((el) => {
+      const date = new Date(el.getAttribute('datetime')!);
+      el.textContent = formatRelative(date);
+    });
+  }
+
+  updateRelativeTimes();
+  setInterval(updateRelativeTimes, 60_000);
+</script>
+
+<style>
+  .post-timestamp {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin: 0 0 0.5rem;
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+  }
+
+  .badges {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .badges :global(.badge-icon) {
+    width: 16px;
+    height: 16px;
+  }
+</style>

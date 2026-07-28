@@ -1,0 +1,74 @@
+---
+interface Props {
+  date: Date;
+  tags?: string[];
+}
+
+const { date, tags = [] } = Astro.props;
+
+const dateFormatter = new Intl.DateTimeFormat('de-DE', { day: '2-digit', month: 'long', year: 'numeric' });
+const timeFormatter = new Intl.DateTimeFormat('de-DE', { hour: '2-digit', minute: '2-digit' });
+---
+
+<div class="meta-card">
+  <time datetime={date.toISOString()}>{dateFormatter.format(date)} ({timeFormatter.format(date)} Uhr)</time>
+  {tags.length > 0 && (
+    <ul class="meta-card-tags">
+      {tags.map((tag) => (
+        <li><a href={`/tags/${tag}`}><span class="tag-hash">#</span><span class="tag-name">{tag}</span></a></li>
+      ))}
+    </ul>
+  )}
+</div>
+
+<style>
+  .meta-card {
+    display: inline-flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+    padding-top: 2rem;
+  }
+
+  .meta-card-tags {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 0;
+    margin: 0;
+  }
+
+  .meta-card-tags a {
+    font-size: 0.85rem;
+    text-decoration: none;
+    text-transform: uppercase;
+    background-image: linear-gradient(
+      color-mix(in srgb, var(--accent) 10%, transparent),
+      color-mix(in srgb, var(--accent) 10%, transparent)
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 0%;
+    background-position: 0 88%;
+    transition: background-size 0.15s ease;
+  }
+
+  .meta-card-tags a:hover {
+    background-size: 100% 100%;
+  }
+
+  .tag-hash {
+    color: var(--fg);
+    font-size: 0.9em;
+    transition: color 0.15s ease;
+  }
+
+  .meta-card-tags a:hover .tag-hash {
+    color: color-mix(in srgb, var(--accent) 65%, transparent);
+  }
+
+  .tag-name {
+    color: color-mix(in srgb, var(--accent) 65%, transparent);
+  }
+</style>

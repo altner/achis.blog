@@ -1,5 +1,6 @@
 ---
 import 'leaflet/dist/leaflet.css';
+import { getCollection } from 'astro:content';
 
 interface Point {
   lat: number;
@@ -9,12 +10,19 @@ interface Point {
 }
 
 interface Props {
-  points: Point[];
-  distanceKm?: number;
-  elevationGainM?: number;
+  gpx: string;
 }
 
-const { points, distanceKm, elevationGainM } = Astro.props;
+const { gpx } = Astro.props;
+
+// Activity IDs are the full path relative to src/content/posts (see
+// src/loaders/gpx.ts), but callers only know their own .gpx filename — so
+// match on the filename regardless of which post directory it lives in.
+const activities = await getCollection('activities');
+const activity = activities.find((entry) => entry.id === gpx || entry.id.endsWith(`/${gpx}`));
+if (!activity) throw new Error(`GPX activity not found for: ${gpx}`);
+
+const { points, distanceKm, elevationGainM } = activity.data;
 const mapId = `route-map-${crypto.randomUUID()}`;
 const dataId = `${mapId}-data`;
 

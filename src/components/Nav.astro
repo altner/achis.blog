@@ -1,31 +1,12 @@
 ---
-import { getCollection } from 'astro:content';
 import Icon from './Icon.astro';
 
-const categories = (await getCollection('categories')).sort((a, b) => a.data.order - b.data.order);
 const pathname = Astro.url.pathname;
 ---
 
 <nav class="nav">
   <a class="brand" href="/" aria-current={pathname === '/' ? 'page' : undefined}>achis.blog</a>
   <ul class="categories">
-    {categories.map((category) => {
-      const isActive = pathname === `/${category.id}` || pathname.startsWith(`/${category.id}/`);
-
-      return (
-        <li>
-          <a
-            class="category-link"
-            href={`/${category.id}`}
-            aria-label={category.data.title}
-            aria-current={isActive ? 'page' : undefined}
-            data-label={category.data.title}
-          >
-            <Icon name={category.data.icon} />
-          </a>
-        </li>
-      );
-    })}
     <li>
       <a
         class="category-link"
@@ -45,6 +26,7 @@ const pathname = Astro.url.pathname;
     display: flex;
     align-items: center;
     gap: 1.25rem;
+    width: 100%;
     max-width: 36rem;
     margin: 0 auto;
     padding: 1.25rem 1.5rem;
@@ -63,7 +45,7 @@ const pathname = Astro.url.pathname;
     align-items: center;
     list-style: none;
     gap: 0.75rem;
-    margin: 0;
+    margin: 0 0 0 auto;
     padding: 0;
     flex-wrap: wrap;
   }

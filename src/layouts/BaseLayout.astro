@@ -26,5 +26,46 @@ const { title, description } = Astro.props;
     <main>
       <slot />
     </main>
+    <footer class="footer">
+      <p>© 2026 Adrian Altner</p>
+      <p class="footer-legal">
+        <a href="/ueber-mich">Über mich</a>
+        <a href="/impressum">Impressum</a>
+        <a href="/datenschutz">Datenschutz</a>
+      </p>
+    </footer>
   </body>
 </html>
+
+<style>
+  .footer {
+    width: 100%;
+    max-width: 36rem;
+    margin: 0 auto;
+    padding: 1.5rem;
+    text-align: center;
+    font-size: 0.85rem;
+    color: var(--fg-muted);
+  }
+
+  .footer p {
+    margin: 0;
+  }
+
+  .footer-legal {
+    margin-top: 0.4rem;
+    display: flex;
+    justify-content: center;
+    gap: 0.75rem;
+    font-size: 0.75rem;
+  }
+
+  .footer-legal a {
+    color: var(--fg-muted);
+    text-decoration: none;
+  }
+
+  .footer-legal a:hover {
+    color: var(--accent);
+  }
+</style>

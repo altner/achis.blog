@@ -1,0 +1,30 @@
+---
+layout: ~/layouts/LegalLayout.astro
+title: Impressum
+description: Impressum für achis.blog.
+---
+
+import { CONTACT_NAME, CONTACT_STREET, CONTACT_CITY, CONTACT_PHONE, CONTACT_EMAIL } from '~/consts';
+
+# Impressum
+
+## Angaben gemäß § 5 DDG
+
+{CONTACT_NAME}<br />
+{CONTACT_STREET}<br />
+{CONTACT_CITY}
+
+**Telefon:** {CONTACT_PHONE}<br />
+**E-Mail:** {CONTACT_EMAIL}
+
+---
+
+## Verantwortlich für den Inhalt
+
+Verantwortlich für den Inhalt dieser Website nach § 18 Abs. 2 MStV ist die oben genannte Person.
+
+---
+
+## Datenschutz
+
+Informationen zur Verarbeitung personenbezogener Daten findest du in der <a href="/datenschutz">Datenschutzerklärung</a>.

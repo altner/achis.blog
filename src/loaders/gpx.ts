@@ -121,11 +121,11 @@ function decimate<T>(points: T[], max: number): T[] {
   return out;
 }
 
-export function gpxLoader(): Loader {
+export function gpxLoader() {
   return {
     name: 'gpx-loader',
     schema: activitySchema,
-    async load({ store, config, logger, parseData }) {
+    async load({ store, config, logger, parseData }: Parameters<Loader['load']>[0]) {
       const base = new URL('./src/content/posts/', config.root);
       const files = await glob('**/*.gpx', { cwd: base });
 

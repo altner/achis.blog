@@ -1,21 +1,5 @@
 ---
-import {
-  Code,
-  Heart,
-  Rocket,
-  BookOpen,
-  PawPrint,
-  Keyboard,
-  Plane,
-  Camera,
-  Music,
-  Bike,
-  NotebookPen,
-  Backpack,
-  Compass,
-  Footprints,
-  Tags,
-} from '@lucide/astro';
+import { Icon as IconifyIcon } from 'astro-icon/components';
 
 interface Props {
   name: string;
@@ -25,24 +9,24 @@ interface Props {
 const { name, class: className } = Astro.props;
 
 const icons = {
-  code: Code,
-  heart: Heart,
-  rocket: Rocket,
-  book: BookOpen,
-  paw: PawPrint,
-  keyboard: Keyboard,
-  plane: Plane,
-  camera: Camera,
-  music: Music,
-  bike: Bike,
-  notebook: NotebookPen,
-  backpack: Backpack,
-  compas: Compass,
-  footprints: Footprints,
-  tags: Tags,
+  code: 'lucide:code',
+  heart: 'lucide:heart',
+  rocket: 'lucide:rocket',
+  book: 'lucide:book-open',
+  paw: 'lucide:paw-print',
+  keyboard: 'lucide:keyboard',
+  plane: 'lucide:plane',
+  camera: 'lucide:camera',
+  music: 'lucide:music',
+  bike: 'lucide:bike',
+  notebook: 'lucide:notebook-pen',
+  backpack: 'lucide:backpack',
+  compas: 'lucide:compass',
+  footprints: 'lucide:footprints',
+  tags: 'lucide:tags',
 } as const;
 
-const IconComponent = icons[name as keyof typeof icons];
+const iconName = icons[name as keyof typeof icons];
 ---
 
-{IconComponent && <IconComponent class={className} size={20} stroke-width={2} aria-hidden="true" />}
+{iconName && <IconifyIcon name={iconName} class={className} width={20} height={20} aria-hidden="true" />}

@@ -1,0 +1,13 @@
+---
+import { Icon as IconifyIcon } from 'astro-icon/components';
+
+interface Props {
+  platform: string;
+  class?: string;
+}
+
+const { platform, class: className } = Astro.props;
+const iconName = `simple-icons:${platform.toLowerCase()}`;
+---
+
+<IconifyIcon name={iconName} class={className} width={20} height={20} aria-hidden="true" />

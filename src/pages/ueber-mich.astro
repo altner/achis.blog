@@ -1,0 +1,58 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SocialIcon from '../components/SocialIcon.astro';
+import mePhoto from '../assets/images/me.avif';
+import { CONTACT_NAME, SITE, SOCIAL_PROFILES } from '../consts';
+---
+
+<BaseLayout title={`Über mich — achis.blog`} description={`Über ${CONTACT_NAME} — ${SITE.description}`}>
+  <h1>Über mich</h1>
+  <Image src={mePhoto} alt={CONTACT_NAME} width={160} height={160} class="portrait" />
+    <ul class="social-list">
+    {SOCIAL_PROFILES.map((profile) => (
+      <li>
+        <a href={profile.href} target="_blank" rel={profile.rel} aria-label={profile.platform}>
+          <SocialIcon platform={profile.platform} />
+        </a>
+      </li>
+    ))}
+  </ul>
+</BaseLayout>
+
+<style>
+  .portrait {
+    display: block;
+    width: 6rem;
+    height: 6rem;
+    border-radius: 50%;
+    object-fit: cover;
+    margin: 0 auto 1.25rem;
+  }
+
+  h1 {
+    text-align: center;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .social-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .social-list a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg-muted);
+  }
+
+  .social-list a:hover {
+    color: var(--accent);
+  }
+</style>

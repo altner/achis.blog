@@ -1,0 +1,6 @@
+---
+// See DemoteH2.astro — same idea, one level further down.
+const { id, ...rest } = Astro.props;
+---
+
+<h4 id={id} {...rest}><slot /></h4>

@@ -1,0 +1,8 @@
+---
+// Demotes markdown `##` headings to `<h3>` when a post's full content is
+// embedded under a teaser `<h2>` title (e.g. on the paginated homepage),
+// so the document outline doesn't have two competing h2 levels.
+const { id, ...rest } = Astro.props;
+---
+
+<h3 id={id} {...rest}><slot /></h3>

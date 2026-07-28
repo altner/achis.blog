@@ -1,0 +1,197 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PostTimestamp from '../components/PostTimestamp.astro';
+import PostMetaCard from '../components/PostMetaCard.astro';
+
+export async function getStaticPaths() {
+  const posts = (await getCollection('posts'))
+    .filter((post) => !post.data.draft)
+    .sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+  return posts.map((post, index) => ({
+    params: { id: post.id },
+    props: {
+      id: post.id,
+      prevId: posts[index + 1]?.id,
+      nextId: posts[index - 1]?.id,
+    },
+  }));
+}
+
+const { id, prevId, nextId } = Astro.props;
+const post = await getEntry('posts', id);
+if (!post) throw new Error(`Post not found: ${id}`);
+
+const [prevPost, nextPost] = await Promise.all([
+  prevId ? getEntry('posts', prevId) : undefined,
+  nextId ? getEntry('posts', nextId) : undefined,
+]);
+
+const { Content } = await render(post);
+---
+
+<BaseLayout title={`${post.data.title} — achis.blog`} description={post.data.description}>
+  <article>
+    <PostTimestamp date={post.data.date} badges={post.data.badges} />
+    <h1>{post.data.title}</h1>
+    <div class="content">
+      <Content />
+    </div>
+    <PostMetaCard date={post.data.date} tags={post.data.tags} />
+    <nav class="post-nav">
+      {prevPost && (
+        <a class="post-nav-link prev" href={`/${prevPost.id}`}>
+          <span class="post-nav-label">← Vorheriger Post</span>
+          <span class="post-nav-title">{prevPost.data.title}</span>
+        </a>
+      )}
+      {nextPost && (
+        <a class="post-nav-link next" href={`/${nextPost.id}`}>
+          <span class="post-nav-label">Nächster Post →</span>
+          <span class="post-nav-title">{nextPost.data.title}</span>
+        </a>
+      )}
+    </nav>
+  </article>
+</BaseLayout>
+
+<style>
+  h1 {
+    margin-top: 0;
+  }
+
+  .content {
+    hyphens: auto;
+    overflow-wrap: break-word;
+  }
+
+  .content :global(p) {
+    margin: 1rem 0;
+  }
+
+  .content :global(h2),
+  .content :global(h3) {
+    line-height: 1.3;
+    margin: 2.25rem 0 0.75rem;
+  }
+
+  .content :global(h2) {
+    font-size: 1.4rem;
+  }
+
+  .content :global(h3) {
+    font-size: 1.15rem;
+  }
+
+  .content :global(h2 + p),
+  .content :global(h3 + p) {
+    margin-top: 0;
+  }
+
+  .content :global(ul),
+  .content :global(ol) {
+    margin: 1rem 0;
+    padding-left: 1.4rem;
+  }
+
+  .content :global(li) {
+    margin: 0.35rem 0;
+  }
+
+  .content :global(li > p) {
+    margin: 0;
+  }
+
+  .content :global(code) {
+    background: var(--bg-subtle);
+    padding: 0.15em 0.4em;
+    border-radius: 0.35em;
+    font-size: 0.9em;
+  }
+
+  .content :global(pre) {
+    padding: 1rem;
+    border-radius: 0.75rem;
+    overflow-x: auto;
+  }
+
+  .content :global(pre code) {
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    font-size: 0.85em;
+  }
+
+  .content :global(blockquote) {
+    margin: 1.25rem 0;
+    padding-left: 1rem;
+    border-left: 3px solid var(--border);
+    color: var(--fg-muted);
+    font-style: italic;
+  }
+
+  .content :global(hr) {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 2.5rem 0;
+  }
+
+  .content :global(img) {
+    max-width: 100%;
+    border-radius: 0.75rem;
+  }
+
+  .content :global(a) {
+    color: inherit;
+    text-decoration: none;
+    background-image: linear-gradient(
+      color-mix(in srgb, var(--marker) 65%, transparent),
+      color-mix(in srgb, var(--marker) 65%, transparent)
+    );
+    background-repeat: no-repeat;
+    background-size: 100% 35%;
+    background-position: 0 88%;
+    transition: background-size 0.15s ease;
+  }
+
+  .content :global(a:hover) {
+    background-size: 100% 100%;
+  }
+
+  .post-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-top: 2.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .post-nav-link {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    max-width: 48%;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .post-nav-link.next {
+    margin-left: auto;
+    text-align: right;
+  }
+
+  .post-nav-label {
+    font-size: 0.8rem;
+    color: var(--fg-muted);
+  }
+
+  .post-nav-title {
+    font-weight: 600;
+  }
+
+  .post-nav-link:hover .post-nav-title {
+    color: var(--accent);
+  }
+</style>

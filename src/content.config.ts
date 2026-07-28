@@ -1,4 +1,4 @@
-import { defineCollection, reference } from 'astro:content';
+import { defineCollection } from 'astro:content';
 import { glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 import { gpxLoader } from './loaders/gpx';
@@ -15,11 +15,6 @@ const posts = defineCollection({
     title: z.string(),
     description: z.string(),
     date: z.coerce.date(),
-    category: reference('categories').optional(),
-    // Just the filename — the matching .gpx file always lives in the same
-    // folder as the post itself. Resolved to an `activities` entry at
-    // render time by combining this with the post's own directory.
-    gpx: z.string().optional(),
     // Small icon badges shown next to the post meta, e.g. for "unterwegs"
     // posts: bike for rides, footprints for walks, camera when there are
     // photos, backpack for longer trips. Any combination is allowed.
@@ -29,18 +24,8 @@ const posts = defineCollection({
   }),
 });
 
-const categories = defineCollection({
-  loader: glob({ pattern: '**/*.md', base: './src/content/categories' }),
-  schema: z.object({
-    title: z.string(),
-    description: z.string(),
-    icon: z.string(),
-    order: z.number().default(0),
-  }),
-});
-
 const activities = defineCollection({
   loader: gpxLoader(),
 });
 
-export const collections = { posts, categories, activities };
+export const collections = { posts, activities };
