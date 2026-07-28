@@ -25,3 +25,4 @@ pnpm-debug.log*
 
 # local worktree used by scripts/deploy.sh
 .pages-worktree/
+.vercel
