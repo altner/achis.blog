@@ -5,7 +5,7 @@ date: 2026-07-26T21:15:00+02:00
 tags: [astro, gpx, leaflet, map]
 ---
 
-Für die Touren unter "Unterwegs" wollte ich nicht nur einen Text schreiben, sondern die aufgezeichnete Strecke direkt als Karte zeigen — inklusive Höhenprofil. Ein Beispiel dafür ist die [Dresden-Moritzburg Runde](/dresden-moritzburg-runde). Hier kurz, wie das technisch funktioniert.
+Für Fahrrad-Touren (Tag `fahrrad`) wollte ich nicht nur einen Text schreiben, sondern die aufgezeichnete Strecke direkt als Karte zeigen — inklusive Höhenprofil. Ein Beispiel dafür ist die [Dresden-Moritzburg Runde](/dresden-moritzburg-runde). Hier kurz, wie das technisch funktioniert.
 
 ## Eigene Content Collection statt Datei-Handling im Post
 
@@ -15,13 +15,15 @@ Statt die GPX-Datei einfach irgendwo im Code einzulesen, gibt es dafür eine eig
 - die Gesamtstrecke (Haversine-Formel zwischen den Punkten)
 - die Höhenmeter
 
-Welche GPX-Datei zu welchem Post gehört, steht dagegen im Frontmatter des Posts — einfach der Dateiname:
+Welche GPX-Datei zu welchem Post gehört, steht dagegen nicht im Frontmatter, sondern wird im Post selbst über die `RouteMap`-Komponente angegeben — einfach der Dateiname:
 
-```yaml
-gpx: 2026-07-13_3130383832_Ride.gpx
+```mdx
+import RouteMap from '~/components/RouteMap.astro';
+
+<RouteMap gpx="2026-07-13_3130383832_Ride.gpx" />
 ```
 
-Da die GPX-Datei immer im selben Ordner wie der Post liegt, reicht der Dateiname. Beim Rendern der Post-Seite wird er mit dem Ordner des Posts kombiniert, um den passenden Eintrag aus der `activities`-Collection zu finden.
+Da die GPX-Datei immer im selben Ordner wie der Post liegt, reicht der Dateiname. Beim Rendern wird er mit dem Ordner des Posts kombiniert, um den passenden Eintrag aus der `activities`-Collection zu finden.
 
 ## Höhenmeter aus GPS-Daten sind trickreich
 
