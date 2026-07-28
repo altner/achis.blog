@@ -1,0 +1,17 @@
+---
+export const prerender = false;
+
+const now = new Date().toISOString();
+---
+
+<html lang="de">
+	<head>
+		<meta charset="utf-8" />
+		<title>SSR Test</title>
+	</head>
+	<body>
+		<h1>SSR Test</h1>
+		<p>Server-Zeit bei diesem Request: {now}</p>
+		<p>Bei jedem Reload sollte sich die Zeit ändern, wenn SSR funktioniert.</p>
+	</body>
+</html>
