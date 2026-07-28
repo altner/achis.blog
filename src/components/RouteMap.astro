@@ -107,7 +107,11 @@ if (elePoints.length >= 2 && totalDistKm > 0) {
       const points: { lat: number; lon: number }[] = JSON.parse(dataEl.textContent);
       if (points.length === 0) return;
 
-      const map = L.map(el).setView([points[0].lat, points[0].lon], 13);
+      const map = L.map(el, {
+        zoomAnimation: false,
+        fadeAnimation: false,
+        markerZoomAnimation: false,
+      });
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
@@ -116,7 +120,8 @@ if (elePoints.length >= 2 && totalDistKm > 0) {
 
       const latlngs = points.map((p): [number, number] => [p.lat, p.lon]);
       const line = L.polyline(latlngs, { color: 'var(--accent)', weight: 4 }).addTo(map);
-      map.fitBounds(line.getBounds(), { padding: [16, 16] });
+      const bounds = line.getBounds();
+      map.fitBounds(bounds, { padding: [16, 16], animate: false });
 
       L.circleMarker(latlngs[0], { radius: 7, color: '#2e7d32', fillColor: '#2e7d32', fillOpacity: 1 }).addTo(map);
       L.circleMarker(latlngs[latlngs.length - 1], {
@@ -125,6 +130,18 @@ if (elePoints.length >= 2 && totalDistKm > 0) {
         fillColor: '#c62828',
         fillOpacity: 1,
       }).addTo(map);
+
+      // Leaflet handles window resizes itself. ResizeObserver also covers
+      // container changes caused by the surrounding layout.
+      let resizeFrame: number;
+      const resizeObserver = new ResizeObserver(() => {
+        cancelAnimationFrame(resizeFrame);
+        resizeFrame = requestAnimationFrame(() => {
+          map.invalidateSize({ pan: false });
+          map.fitBounds(bounds, { padding: [16, 16], animate: false });
+        });
+      });
+      resizeObserver.observe(el);
     });
   }
 
